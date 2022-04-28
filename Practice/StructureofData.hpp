@@ -113,6 +113,30 @@ void mergeSort(vector<int> &v, int l, int r)
     for (int i = 0; i < n; ++i)
         v[l + i] = help[i];
 }
+int partition(vector<int> &nums, int l, int r)
+{
+    int pivot = nums[l];
+    while (l < r)
+    {
+        while (nums[r] >= pivot && l < r)
+            --r;
+        nums[l] = nums[r];
+        while (nums[l] <= pivot && l < r)
+            ++l;
+        nums[r] = nums[l];
+    }
+    nums[l] = pivot;
+    return l;
+}
+void quickSort(vector<int> &nums, int l, int r)
+{
+    if (l < r)
+    {
+        int pivotpos = partition(nums, l, r);
+        quickSort(nums, l, pivotpos - 1);
+        quickSort(nums, pivotpos + 1, r);
+    }
+}
 //***********************************************************************************************************************//
 //查找
 int search(const vector<int> &nums, int target) //二分找有序数组中下标最小的target（可能有重复数据）
