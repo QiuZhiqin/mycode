@@ -1,25 +1,25 @@
 #include "StructureofData.hpp"
+#include <unistd.h>
 using namespace std;
+enum classifications
+{
+    food,
+    drink,
+    others
+};
+struct goods
+{
+    float price;
+    union
+    {
+        char id_char[20];
+        int id_num;
+    } id;
+    classifications classification;
+};
 int main()
 {
-    int n, target;
-    cin >> n >> target;
-    vector<int> nums(n);
-    for (int i = 0; i < n; ++i)
-        cin >> nums[i];
-    int l = -1, r = n, p = 0;
-    while (p < r)
-    {
-        if (nums[p] < target)
-            swap(nums[p++], nums[++l]);
-        else if (nums[p] > target)
-            swap(nums[p], nums[--r]);
-        else
-            ++p;
-    }
-    if (r - l == 1)
-        cout << "-1 -1";
-    else
-        cout << l + 1 << " " << r - 1;
+    const char *str = "i love you";
+    cout << str;
     return 0;
 }
