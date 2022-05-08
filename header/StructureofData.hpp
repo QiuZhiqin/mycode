@@ -1,3 +1,4 @@
+#pragma once
 #include <Ctime>
 #include <algorithm>
 #include <cctype>

@@ -7,19 +7,18 @@ enum classifications
     drink,
     others
 };
-struct goods
+class goods
 {
+public:
     float price;
     union
     {
-        char id_char[20];
+        string id_char = "";
         int id_num;
     } id;
     classifications classification;
 };
 int main()
 {
-    const char *str = "i love you";
-    cout << str;
     return 0;
 }
