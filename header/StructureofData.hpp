@@ -138,6 +138,78 @@ void quickSort(vector<int> &nums, int l, int r)
         quickSort(nums, pivotpos + 1, r);
     }
 }
+void CountSort(vector<int> &nums, int max_num)
+{
+    int n = nums.size(), index = 0;
+    int count[max_num + 1];
+    for (int i = 0; i <= max_num; ++i)
+        count[i] = 0;
+    for (int i = 0; i < n; ++i)
+        count[nums[i]]++;
+    for (int i = 0; i <= max_num; ++i)
+    {
+        for (int j = 0; j < count[i]; ++j)
+            nums[index++] = i;
+    }
+}
+int maxBit(vector<int> &v)
+{
+    int max = v[0];
+    for (vector<int>::iterator it = v.begin(); it != v.end(); it++)
+    {
+        if (*it > max)
+        {
+            max = *it;
+        }
+    }
+    int bit = 0;
+    while (max != 0)
+    {
+        bit++;
+        max /= 10;
+    }
+    return bit;
+}
+//得到一个十进制数的第d位
+int getdigit(int num, int d)
+{
+    return (int(num / pow(10, d))) % 10;
+}
+void radixSort(vector<int> &v, int digit)
+{
+    //先准备十个桶
+    const int radix = 10;
+    //准备一个辅助空间
+    int *tempSpace = new int[v.size()];
+    for (int d = 0; d < digit; d++)
+    {
+        int count[10] = {0};
+        int j = 0; //记录每个数的次数
+        for (vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        {
+            j = getdigit(*it, d);
+            count[j]++;
+        }
+        //各个位置计数小于等于该位置数的次数
+        for (int i = 1; i < radix; i++)
+        {
+            count[i] = count[i] + count[i - 1];
+        }
+        //从数组末端遍历
+        for (vector<int>::reverse_iterator it = v.rbegin(); it != v.rend(); it++)
+        {
+            j = getdigit(*it, d);          //获取第d位的值
+            tempSpace[count[j] - 1] = *it; //将此位置放在词频统计此范围的末端
+            count[j]--;                    //安置好一个数，次数减一
+        }
+        //将辅助数组的值放回v里面
+        for (int i = 0; i < v.size(); i++)
+        {
+            v[i] = tempSpace[i];
+        }
+    }
+    delete[] tempSpace;
+}
 //***********************************************************************************************************************//
 //查找
 int search(const vector<int> &nums, int target) //二分找有序数组中下标最小的target（可能有重复数据）
