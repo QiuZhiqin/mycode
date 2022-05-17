@@ -3,19 +3,39 @@
 #include <cctype>
 #include <unistd.h>
 using namespace std;
-int main()
+
+struct Interval
 {
-    vector<int> nums = {5, 8, 9, 12, 6, 7, 5, 9, 8};
-    int l = 0, r = nums.size() - 1;
-    while (l < r)
+    int start;
+    int end;
+    Interval(int s, int e) : start(start), end(e) {}
+};
+
+class Solution
+{
+public:
+    vector<Interval> insert(vector<Interval> &intervals, Interval newInterval)
     {
-        while (nums[l] % 2 == 1)
-            l++;
-        swap(nums[l], nums[r]);
-        while (nums[r] % 2 == 0)
-            --r;
+        int n = intervals.size(), i;
+        int ns = newInterval.start, ne = newInterval.end;
+        vector<Interval> ans;
+        for (i = 0; i < n; ++i)
+        {
+            if (ns > intervals[i].end)
+                ans.push_back(intervals[i]);
+            else if (ne < intervals[i].start)
+                break;
+            else
+            {
+                ns = min(ns, intervals[i].start);
+                ne = max(ne, intervals[i].end);
+            }
+        }
+        newInterval.start = ns;
+        newInterval.end = ne;
+        ans.push_back(newInterval);
+        for (; i < n; ++i)
+            ans.push_back(intervals[i]);
+        return ans;
     }
-    for (const int &a : nums)
-        cout << a << " ";
-    return 0;
-}
+};
