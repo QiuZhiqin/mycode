@@ -58,3 +58,82 @@ void func1()
     }
     cout << ans;
 }
+/*
+月神拿到一个新的数据集，其中每个样本都是一个字符串，样本的的后六位是纯数字，月神需要将所有样本的后六位数字提出来，转换成数字，并排序输出。
+
+注意：这里的排序并不是针对每个字符串的后六位，而是需要按数字大小顺序输出所有样本的后六位数字。
+
+月神要实现这样一个很简单的功能确没有时间，作为好朋友的你，一定能解决月神的烦恼，对吧。
+*/
+int func2()
+{
+    int n;
+    cin >> n;
+    getchar();
+    string data_set[n];
+    for (int i = 0; i < n; ++i)
+        getline(cin, data_set[i]);
+    int nums[n];                //用于存储转换后的数字
+    for (int i = 0; i < n; ++i) //以下部分用于转换每个字符串后六位为数字
+    {
+        int m = data_set[i].size(), res = 0;
+        for (int j = m - 6; j < m; ++j)
+            res = res * 10 + (data_set[i][j] - '0');
+        nums[i] = res;
+    }
+    for (int i = 1; i < n; ++i) //插排
+    {
+        int temp = nums[i], j;
+        for (j = i - 1; j >= 0 && nums[j] > temp; --j)
+            nums[j + 1] = nums[j];
+        nums[j + 1] = temp;
+    }
+    for (int i = 0; i < n; ++i)
+        cout << nums[i] << endl;
+    return 0;
+}
+/*
+给定一组不重叠的时间区间，在时间区间中插入一个新的时间区间(如果有重叠的话就合并区间)。
+这些时间区间初始是根据它们的开始时间排序的。
+示例1:
+给定时间区间[1,3]，[6,9]，在这两个时间区间中插入时间区间[2,5]，并将它与原有的时间区间合并，变成[1,5],[6,9].
+示例2：
+给定时间区间[]16],在这些时间区间中插入时间区间[4,9]，并将它与原有的时间区间合并，变成[1,2],[3,10],[12,16].
+这是因为时间区间[4,9]覆盖了时间区间[3,5],[6,7],[8,10].
+示例1
+*/
+struct Interval
+{
+    int start;
+    int end;
+    Interval(int s, int e) : start(start), end(e) {}
+};
+
+class Solution3
+{
+public:
+    vector<Interval> insert(vector<Interval> &intervals, Interval newInterval)
+    {
+        int n = intervals.size(), i;
+        int ns = newInterval.start, ne = newInterval.end;
+        vector<Interval> ans;
+        for (i = 0; i < n; ++i)
+        {
+            if (ns > intervals[i].end)
+                ans.push_back(intervals[i]);
+            else if (ne < intervals[i].start) //新区间与旧区间不相交，直接跳出
+                break;
+            else //以下是合并区间的过程，且可能合并多个
+            {
+                ns = min(ns, intervals[i].start);
+                ne = max(ne, intervals[i].end);
+            }
+        }
+        newInterval.start = ns; //更新区间信息
+        newInterval.end = ne;
+        ans.push_back(newInterval); //插入新区间
+        for (; i < n; ++i)          //插入剩余不变的区间
+            ans.push_back(intervals[i]);
+        return ans;
+    }
+};
