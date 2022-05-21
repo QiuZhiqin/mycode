@@ -36,6 +36,83 @@ SqList Creat_List(vector<int> v1)
     }
     return L;
 }
+ListNode *FindFirstCommonNode(ListNode *pHead1, ListNode *pHead2) //无环链表
+{
+    int n = 0;
+    ListNode *p = pHead1, *q;
+    while (p != nullptr)
+    {
+        n++;
+        p = p->next;
+    }
+    p = pHead2;
+    while (p != nullptr)
+    {
+        n--;
+        p = p->next;
+    }
+    p = n < 0 ? pHead2 : pHead1;
+    q = n < 0 ? pHead1 : pHead2;
+    n = abs(n);
+    while (n > 0)
+    {
+        p = p->next;
+        n--;
+    }
+    while (p != nullptr && q != nullptr)
+    {
+        if (p == q)
+            return p;
+        p = p->next;
+        q = q->next;
+    }
+    return nullptr;
+}
+ListNode *GetLoopNode(ListNode *head)
+{
+    ListNode *slow = head, *fast = head;
+    while (fast != nullptr)
+    {
+        slow = slow->next;
+        if (fast->next == nullptr)
+        {
+            return nullptr;
+        }
+        fast = fast->next->next;
+        if (fast == slow)
+        {
+            ListNode *ptr = head;
+            while (ptr != slow)
+            {
+                ptr = ptr->next;
+                slow = slow->next;
+            }
+            return ptr;
+        }
+    }
+    return nullptr;
+}
+ListNode *insertionSortList(ListNode *head) //链表插排（不含头节点）
+{
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    ListNode *new_head = new ListNode();
+    new_head->next = new ListNode();
+    new_head->next->val = head->val;
+    ListNode *cur = head->next, *pre = new_head;
+    head->next = nullptr; //原链表断链
+    while (cur != nullptr)
+    {
+        pre = new_head;
+        while (cur->val > pre->next->val && pre->next != nullptr)
+            pre = pre->next;
+        ListNode *temp = cur->next; //保护cur的next指向
+        cur->next = pre->next;
+        pre->next = cur;
+        cur = temp;
+    }
+    return new_head->next;
+}
 //***********************************************************************************************************************//
 //二叉树
 struct TreeNode
@@ -47,6 +124,75 @@ struct TreeNode
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
+//以下为三种遍历的非递归实现
+vector<int> PreOrder(TreeNode *root)
+{
+    vector<int> ans;
+    if (root == nullptr)
+        return ans;
+    stack<TreeNode *> help;
+    help.push(root);
+    while (!help.empty())
+    {
+        TreeNode *temp = help.top();
+        help.pop();
+        ans.push_back(temp->val);
+        if (temp->right != nullptr)
+            help.push(temp->right);
+        if (temp->left != nullptr)
+            help.push(temp->left);
+    }
+    return ans;
+}
+vector<int> PostOrder(TreeNode *root)
+{
+    vector<int> ans;
+    if (root == nullptr)
+        return ans;
+    stack<TreeNode *> help1, help2; //使用两个栈，第一个栈出栈后加入第二个栈
+    help1.push(root);
+    while (!help1.empty())
+    {
+        TreeNode *temp = help1.top();
+        help1.pop();
+        help2.push(temp);
+        if (temp->left != nullptr) //先入左子节点，保证出栈顺序为中右左，从而使得第二个栈出栈顺序为左右中
+            help1.push(temp->left);
+        if (temp->right != nullptr)
+            help1.push(temp->right);
+    }
+    while (!help2.empty())
+    {
+        TreeNode *temp = help2.top();
+        help2.pop();
+        ans.push_back(temp->val);
+    }
+    return ans;
+}
+vector<int> InOrder(TreeNode *root)
+{
+    vector<int> ans;
+    if (root == nullptr)
+        return ans;
+    stack<TreeNode *> help;
+    TreeNode *cur = root;
+    while (!help.empty() || cur != nullptr)
+    {
+        if (cur != nullptr)
+        {
+            help.push(cur);
+            cur = cur->left;
+        }
+        else
+        {
+            cur = help.top();
+            help.pop();
+            ans.push_back(cur->val);
+            cur = cur->right;
+        }
+    }
+    return ans;
+}
 //***********************************************************************************************************************//
 //排序
 void InsertionSort(vector<int> &v)

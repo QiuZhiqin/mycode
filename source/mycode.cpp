@@ -137,3 +137,69 @@ public:
         return ans;
     }
 };
+/*
+P为给定的二维平面整数点集。定义P中某点x，如果x满足P中任意点都不在x的右上方区域内（横纵坐标都大于x），
+则称其为“最大的”。求出所有“最大的”点的集合。（所有点的横坐标和纵坐标都不重复,坐标轴范围在[0, 1e9]内）
+输出“最大的”点集合， 按照X轴从小到大的方式输出，每行两个数字分别代表点的X轴和Y轴。
+*/
+struct point
+{
+    int x;
+    int y;
+    point(int n = 0, int e = 0) : x(n), y(e) {}
+};
+int func3()
+{
+    int n;
+    cin >> n;
+    point points[n];
+    for (int i = 0; i < n; ++i)
+        cin >> points[i].x >> points[i].y;
+    sort(points, points + n, [](point a, point b)
+         { return a.y > b.y; }); //按y从大到小排序
+    vector<point> ans;
+    ans.push_back(points[0]); //放入排序后数组的首元素，一定是最大点
+    for (int i = 1; i < n; ++i)
+    {
+        int cmp = (ans.end() - 1)->x; //在按x从小到大排序的数组ans中，只需与末尾元素的x比较即可，若比其大，
+        if (cmp < points[i].x)        //则比其前面所有最大点的x都大
+            ans.push_back(points[i]); //直接将点插入数组末尾即可保证有序
+    }
+    for (const point &a : ans)
+        cout << a.x << " " << a.y << endl;
+    return 0;
+}
+
+//判断回文链表
+ListNode *ReverseList(ListNode *pHead) //翻转链表，返回反转后的头节点（不为空）
+{
+    if (pHead == nullptr)
+        return pHead;
+    ListNode *p = pHead->next, *q;
+    pHead->next = nullptr;
+    while (p != nullptr)
+    {
+        q = p;
+        p = p->next;
+        q->next = pHead;
+        pHead = q;
+    }
+    return pHead;
+}
+bool isPail(ListNode *head)
+{
+    ListNode *f = head, *s = head;
+    while (f->next != nullptr && f != nullptr) //快慢指针
+    {
+        f = f->next->next;
+        s = s->next;
+    }
+    f = ReverseList(s); //从慢指针逆转
+    s = head;
+    while (s != nullptr && f != nullptr) //两头开始对比
+    {
+        if (s->val != f->val)
+            return false;
+    }
+    return true;
+}
