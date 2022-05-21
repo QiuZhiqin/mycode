@@ -193,6 +193,39 @@ vector<int> InOrder(TreeNode *root)
     }
     return ans;
 }
+int getMaxWidth(TreeNode *head) //求最大宽度（在层序基础上修改而成）
+{
+    if (head == nullptr)
+        return 0;
+    queue<TreeNode *> help;
+    unordered_map<TreeNode *, int> level_map;
+    int CNode = 0, maxNode = 0, level = 1;
+    level_map.insert({head, 1});
+    help.push(head);
+    while (!help.empty())
+    {
+        TreeNode *temp = help.front();
+        help.pop();
+        if (level_map[temp] != level)
+        {
+            level++;
+            CNode = 0;
+        }
+        CNode++;
+        maxNode = max(maxNode, CNode);
+        if (temp->left != nullptr)
+        {
+            help.push(temp->left);
+            level_map.insert({temp->left, level + 1});
+        }
+        if (temp->right != nullptr)
+        {
+            help.push(temp->right);
+            level_map.insert({temp->right, level + 1});
+        }
+    }
+    return maxNode;
+}
 //***********************************************************************************************************************//
 //排序
 void InsertionSort(vector<int> &v)
