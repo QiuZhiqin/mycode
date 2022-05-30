@@ -7,6 +7,7 @@
 #include <math.h>
 #include <numeric>
 #include <queue>
+#include <set>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -125,7 +126,7 @@ struct TreeNode
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 //以下为三种遍历的非递归实现
-vector<int> PreOrder(TreeNode *root)
+vector<int> preOrder(TreeNode *root)
 {
     vector<int> ans;
     if (root == nullptr)
@@ -144,7 +145,7 @@ vector<int> PreOrder(TreeNode *root)
     }
     return ans;
 }
-vector<int> PostOrder(TreeNode *root)
+vector<int> postOrder(TreeNode *root)
 {
     vector<int> ans;
     if (root == nullptr)
@@ -169,7 +170,7 @@ vector<int> PostOrder(TreeNode *root)
     }
     return ans;
 }
-vector<int> InOrder(TreeNode *root)
+vector<int> inOrder(TreeNode *root)
 {
     vector<int> ans;
     if (root == nullptr)
@@ -193,6 +194,7 @@ vector<int> InOrder(TreeNode *root)
     }
     return ans;
 }
+
 int getMaxWidth(TreeNode *head) //求最大宽度（在层序基础上修改而成）
 {
     if (head == nullptr)
@@ -226,9 +228,81 @@ int getMaxWidth(TreeNode *head) //求最大宽度（在层序基础上修改而�
     }
     return maxNode;
 }
+
+bool isBST(TreeNode *root, int low, int high)
+{
+    if (root == nullptr)
+        return true;
+    if (root->val <= low || root->val >= high)
+        return false;
+    return isBST(root->left, low, root->val) && isBST(root->right, root->val, high);
+}
+
+bool isFBT(TreeNode *root)
+{
+    if (root == nullptr)
+        return true;
+    queue<TreeNode *> help;
+    help.push(root);
+    bool flag = false;
+    while (!help.empty())
+    {
+        TreeNode *temp = help.front();
+        help.pop();
+        if ((!temp->left) && temp->right)
+            return false;
+        if (flag == true && (temp->left != nullptr || temp->right != nullptr))
+            return false;
+        if (temp->left)
+            help.push(temp->left);
+        if (temp->right)
+            help.push(temp->right);
+        else
+            flag = true;
+    }
+    return true;
+}
+
+int getDepth(TreeNode *root)
+{
+    if (root == nullptr)
+        return 0;
+    return max(getDepth(root->left), getDepth(root->right)) + 1;
+}
+
+bool isBalanced(TreeNode *pRoot)
+{
+    if (pRoot == nullptr)
+        return true;
+    int help = abs(getDepth(pRoot->left) - getDepth(pRoot->right));
+    if (help > 1)
+        return false;
+    return isBalanced(pRoot->left) && isBalanced(pRoot->right);
+}
+
+TreeNode *dfs(TreeNode *root, int o1, int o2)
+{
+    if (root == nullptr)
+    {
+        return nullptr;
+    }
+    if (root->val == o1 || root->val == o2)
+        return root;
+    TreeNode *t1 = dfs(root->left, o1, o2);
+    TreeNode *t2 = dfs(root->right, o1, o2);
+    if (t1 == nullptr)
+        return t2;
+    if (t2 == nullptr)
+        return t1;
+    return root;
+}
+int lowestCommonAncestor(TreeNode *root, int o1, int o2) //最近公共祖先
+{
+    return dfs(root, o1, o2)->val;
+}
 //***********************************************************************************************************************//
 //排序
-void InsertionSort(vector<int> &v)
+void insertionSort(vector<int> &v)
 {
     int N = v.size();
     int temp, j;
@@ -242,6 +316,7 @@ void InsertionSort(vector<int> &v)
         v[j] = temp;
     }
 }
+
 void BubbleSort(vector<int> &v)
 {
     int N = v.size();
@@ -261,6 +336,7 @@ void BubbleSort(vector<int> &v)
             return;
     }
 }
+
 void SelectSort(vector<int> &v)
 {
     int N = v.size();
@@ -274,6 +350,7 @@ void SelectSort(vector<int> &v)
             swap(v[min], v[i]);
     }
 }
+
 void mergeSort(vector<int> &v, int l, int r)
 {
     if (r - l < 1)
@@ -293,6 +370,7 @@ void mergeSort(vector<int> &v, int l, int r)
     for (int i = 0; i < n; ++i)
         v[l + i] = help[i];
 }
+
 int partition(vector<int> &nums, int l, int r)
 {
     int pivot = nums[l];
@@ -308,6 +386,7 @@ int partition(vector<int> &nums, int l, int r)
     nums[l] = pivot;
     return l;
 }
+
 void quickSort(vector<int> &nums, int l, int r)
 {
     if (l < r)
@@ -317,6 +396,7 @@ void quickSort(vector<int> &nums, int l, int r)
         quickSort(nums, pivotpos + 1, r);
     }
 }
+
 void CountSort(vector<int> &nums, int max_num)
 {
     int n = nums.size(), index = 0;
@@ -331,6 +411,7 @@ void CountSort(vector<int> &nums, int max_num)
             nums[index++] = i;
     }
 }
+
 int maxBit(vector<int> &v)
 {
     int max = v[0];
@@ -354,6 +435,7 @@ int getdigit(int num, int d)
 {
     return (int(num / pow(10, d))) % 10;
 }
+
 void radixSort(vector<int> &v, int digit)
 {
     //先准备十个桶
@@ -410,4 +492,241 @@ int search(const vector<int> &nums, int target) //二分找有序数组中下标
             r = mid - 1;
     }
     return -1;
+}
+
+//***********************************************************************************************************************//
+//图
+struct node;
+struct edge
+{
+    int weight;
+    node *from;
+    node *to;
+    edge(int w, node *f, node *t) : weight(w), from(f), to(t) {}
+    edge() {}
+    ~edge() {}
+    bool operator<(const edge &other) const { return weight > other.weight; }
+};
+struct node
+{
+    int val;
+    int in;
+    int out;
+    set<node> nexts;
+    vector<edge> edges;
+    node(int x = 0) : val(x), in(0), out(0) {}
+    ~node() {}
+    bool operator<(node const &other) const { return val < other.val; }
+};
+struct graph
+{
+    vector<node> nodes;
+    vector<edge> edges;
+};
+graph init(const vector<vector<int>> &g)
+{
+    graph G;
+    unordered_map<int, node> created;
+    node from, to;
+    edge cur;
+    for (auto &e : g)
+    {
+        edge cur = edge(e[2], &from, &to);
+        if (created.find(e[0]) == created.end())
+            from = node(e[0]);
+        else
+            from = created[e[0]];
+        if (created.find(e[1]) == created.end())
+            to = node(e[1]);
+        else
+            to = created[e[1]];
+        from.out++;
+        to.in++;
+        from.nexts.insert(to);
+        from.edges.push_back(cur);
+        G.edges.push_back(cur);
+        created.insert({e[1], to});
+        created.insert({e[0], from});
+    }
+    for (auto &n : created)
+    {
+        G.nodes.push_back(n.second);
+    }
+    return G;
+}
+//并查集
+int Find(vector<int> &father, int x)
+{
+    if (father[x] < 0)
+        return x;
+    else
+    {
+        father[x] = Find(father, father[x]);
+        return father[x];
+    }
+}
+void Union(vector<int> &father, int x, int y) //根的值为该集合高度，数组首位保存根个数
+{
+    x = Find(father, x);
+    y = Find(father, y);
+    if (x != y)
+    {
+        if (father[x] < father[y])
+            father[y] = x;
+        else if (father[x] > father[y])
+            father[x] = y;
+        else
+        {
+            father[y] = x;
+            --father[x];
+        }
+        --father[0];
+    }
+}
+
+//最小生成树
+// Kruskal，利用并查集，返回值为最小耗费
+int Kruskal(graph G) //无向图
+{
+    int ans = 0;
+    sort(G.edges.begin(), G.edges.end(), [](const edge &x, const edge &y)
+         { return x.weight < y.weight; });
+    int n = G.nodes.size();
+    vector<int> father(n + 1, -1);
+    father[0] = n;
+    for (const edge &a : G.edges)
+    {
+        if (Find(father, a.from->val) != Find(father, a.to->val))
+        {
+            Union(father, a.from->val, a.to->val);
+            ans += a.weight;
+        }
+        if (father[0] == 1)
+            break;
+    }
+    return 0;
+}
+// Prim，返回值为最小耗费
+int Prim(graph G) //有向图
+{
+    int ans = 0;
+    int count = G.nodes.size();
+    priority_queue<edge> help;
+    set<node> node_set;
+    node_set.insert(G.nodes[0]);
+    for (const auto &a : G.nodes[0].edges)
+        help.push(a);
+    while (node_set.size() != count)
+    {
+        while (!help.empty())
+        {
+            edge temp = help.top();
+            help.pop();
+            if (node_set.find(*temp.to) != node_set.end())
+            {
+                node_set.insert(*temp.to);
+                for (const auto &e : (*temp.to).edges)
+                    help.push(e);
+                ans += temp.weight;
+            }
+        }
+    }
+    return ans;
+}
+
+//***********************************************************************************************************************//
+//前缀树
+struct TrieNode
+{
+    int pass;
+    int end;
+    TrieNode *nexts[26];
+};
+class Trie
+{
+private:
+    TrieNode *root;
+
+public:
+    Trie() { root = new TrieNode(); }
+    ~Trie() { delete root; }
+    void insert(string word);
+    int search(string word);
+    int prefixNumber(string word);
+    void deleteWord(string word);
+};
+void Trie::insert(string word)
+{
+    if (word.size() == 0)
+        return;
+    TrieNode *node = root;
+    node->pass++;
+    int index = 0;
+    for (auto &a : word)
+    {
+        index = a - 'a';
+        if (node->nexts[index] == nullptr)
+            node->nexts[index] = new TrieNode();
+        node = node->nexts[index];
+        node->pass++;
+    }
+    node->end++;
+}
+int Trie::search(string word)
+{
+    if (word.empty())
+        return 0;
+    TrieNode *node = root;
+    int index = 0;
+    for (auto &a : word)
+    {
+        index = a - 'a';
+        if (node->nexts[index] == nullptr)
+            return 0;
+        node = node->nexts[index];
+    }
+    return node->end;
+}
+int Trie::prefixNumber(string word)
+{
+    if (word.empty())
+        return 0;
+    TrieNode *node = root;
+    int index = 0;
+    for (auto &a : word)
+    {
+        index = a - 'a';
+        if (node->nexts[index] == nullptr)
+            return 0;
+        node = node->nexts[index];
+    }
+    return node->pass;
+}
+void Trie::deleteWord(string word)
+{
+    if (search(word) == 0)
+        return;
+    TrieNode *node = root;
+    node->pass--;
+
+    TrieNode *delete_node = nullptr;
+    int delete_index = -1;
+    set<TrieNode *> deleteSet;
+    for (auto &a : word)
+    {
+        int index = a - 'a';
+        if (--node->nexts[index]->pass == 0)
+        {
+            delete_node = delete_node == nullptr ? node : delete_node;
+            delete_index = delete_index == -1 ? index : delete_index;
+            deleteSet.insert(node->nexts[index]);
+        }
+        node = node->nexts[index];
+    }
+    node->end--;
+    delete_node->nexts[delete_index] = nullptr;
+    for (auto &a : deleteSet)
+    {
+        delete a;
+    }
 }

@@ -1,4 +1,5 @@
 #include "StructureofData.hpp"
+#include <string.h>
 using namespace std;
 /*
 编写一个程序，将输入字符串中的字符按如下规则排序。
@@ -202,4 +203,544 @@ bool isPail(ListNode *head)
             return false;
     }
     return true;
+}
+
+//给定一个节点数为 n 的二叉树和一个值 sum ，请找出所有的根节点到叶子节点的节点值之和等于的路径，如果没有则返回空。
+class solution1
+{
+public:
+    vector<vector<int>> ans;
+    void dfs(TreeNode *root, int sum, vector<int> path)
+    {
+        path.push_back(root->val);
+        if (root->left == nullptr && root->right == nullptr)
+        {
+            if (root->val == sum)
+            {
+                ans.push_back(path);
+                return;
+            }
+        }
+        else
+        {
+            if (root->left)
+                dfs(root->left, sum - root->val, path);
+            if (root->right)
+                dfs(root->right, sum - root->val, path);
+        }
+    }
+    vector<vector<int>> pathSum(TreeNode *root, int sum)
+    {
+        ans.clear();
+        if (!root)
+            return ans;
+        vector<int> path;
+        dfs(root, sum, path);
+        return ans;
+    }
+};
+/*
+描述
+一个 DNA 序列由 A/C/G/T 四个字母的排列组合组成。 G 和 C 的比例（定义为 GC-Ratio ）是序列中 G 和 C 两个字母的总的出现次数除以总的字母数目（也就是序列长度）。在基因工程中，这个比例非常重要。因为高的 GC-Ratio 可能是基因的起始点。
+
+给定一个很长的 DNA 序列，以及限定的子串长度 N ，请帮助研究人员在给出的 DNA 序列中从左往右找出 GC-Ratio 最高且长度为 N 的第一个子串。
+DNA序列为 ACGT 的子串有: ACG , CG , CGT 等等，但是没有 AGT ， CT 等等
+
+输入的字符串只包含 A/C/G/T 字母
+
+输入描述：
+输入一个string型基因序列，和int型子串的长度
+
+输出描述：
+找出GC比例最高的子串,如果有多个则输出第一个的子串
+*/
+int func3()
+{
+    char str[1001] = {0};
+    int N, n = 0, max_ratio = 0;
+    scanf("%s\n", &str);
+    scanf("%d", &N);
+    char ans[N];
+    int len = strlen(str);
+    int count[len + 1];            //用于存储i之前有多少C或者G，不包括i
+    for (int i = 0; i <= len; ++i) //初始化count
+        count[i] = 0;
+    for (int i = 0; i < len; ++i)
+    {
+        if (str[i] == 'G' || str[i] == 'C')
+            n++;
+        count[i + 1] = n;
+    }
+    for (int i = 0; i + N <= len; ++i)
+    {
+        int cur = count[i + N] - count[i]; // cur表示从i开始的子串有多少C或者G
+        if (cur > max_ratio)
+        {
+            max_ratio = cur;
+            strncpy(ans, str + i, N);
+        }
+    }
+    for (int i = 0; i < N; ++i)
+        printf("%c", ans[i]);
+    return 0;
+}
+
+/*
+正整数A和正整数B 的最小公倍数是指 能被A和B整除的最小的正整数值，设计一个算法，求输入A和B的最小公倍数。
+*/
+int gcd(int a, int b)
+{
+    if (b == 0)
+        return a;
+    else
+        return gcd(b, a % b);
+}
+int func4()
+{
+    int a, b;
+    scanf("%d%d", &a, &b);
+    printf("%d", (a * b) / gcd(a, b)); //两数乘积除以他们的最大公约数结果就是最小公倍数
+    return 0;
+}
+
+//给定 n 个字符串，请对 n 个字符串按照字典序排列。
+int func5()
+{
+    int n;
+    scanf("%d\n", &n);
+    char strs[n][101]; //单个字符串不长于100
+    for (int i = 0; i < n; ++i)
+        scanf("%s", strs[i]);
+    for (int i = 1; i < n; ++i)
+    {
+        char temp[100];
+        strcpy(temp, strs[i]);
+        int j;
+        for (j = i; j > 0 && strcmp(strs[j - 1], temp) > 0; --j)
+        {
+            strcpy(strs[j], strs[j - 1]);
+        }
+        strcpy(strs[j], temp);
+    }
+    for (int i = 0; i < n; ++i)
+        printf("%s\n", strs[i]);
+    return 0;
+}
+
+/*
+开发一个坐标计算工具， A表示向左移动，D表示向右移动，W表示向上移动，S表示向下移动。从（0,0）点开始移动，从输入字符串里面读取一些坐标，并将最终输入结果输出到输出文件里面。
+
+输入：
+
+合法坐标为A(或者D或者W或者S) + 数字（两位以内）
+
+坐标之间以;分隔。
+*/
+int charToint(char str[], int s, int e)
+{
+    int ans = 0;
+    while (s + 1 < e)
+    {
+        ans = ans * 10;
+        ans += (str[s + 1] - '0');
+        s++;
+    }
+    return ans;
+}
+int isLegit(char str[], int s, int e) //判断输入是否合法
+{
+    if (e - s > 3) //长度超过3，返回0
+        return 0;
+    if (str[s] != 'W' && str[s] != 'A' && str[s] != 'S' && str[s] != 'D') //首位不合法，返回0
+        return 0;
+    for (int i = s + 1; i < e; ++i) //判断数字是否合法
+        if (str[i] > '9' || str[i] < '0')
+            return 0;
+    return 1;
+}
+int func5()
+{
+    char str[10001];
+    scanf("%s", str);
+    int len = strlen(str);
+    int s = 0, e = 0;
+    int x = 0, y = 0;
+    while (s < len && e < len)
+    {
+        while (e < len && str[e] != ';')
+            e++;
+        if (isLegit(str, s, e))
+        {
+            if (str[s] == 'A')
+                x -= charToint(str, s, e);
+            else if (str[s] == 'W')
+                y += charToint(str, s, e);
+            else if (str[s] == 'S')
+                y -= charToint(str, s, e);
+            else
+                x += charToint(str, s, e);
+        }
+        s = e + 1;
+        e = s;
+    }
+    printf("%d,%d", x, y);
+    return 0;
+}
+/*
+定义一个单词的“兄弟单词”为：交换该单词字母顺序（注：可以交换任意次），而不添加、删除、修改原有的字母就能生成的单词。
+兄弟单词要求和原来的单词不同。例如： ab 和 ba 是兄弟单词。 ab 和 ab 则不是兄弟单词。
+现在给定你 n 个单词，另外再给你一个单词 x ，让你寻找 x 的兄弟单词里，按字典序排列后的第 k 个单词是什么？
+注意：字典中可能有重复单词。
+*/
+int isBrother(char *a, char *b) //判断是否是兄弟单词
+{
+    if (strcmp(a, b) == 0) //完全一致则不是兄弟
+        return 0;
+    int counts[26]; //利用数组统计字符出现次数，若两个字符串字符出现次数完全一致，则是兄弟
+    int a_len = strlen(a), b_len = strlen(b);
+    for (int i = 0; i < 26; ++i) // count初始化
+        counts[i] = 0;
+    for (int i = 0; i < a_len; ++i) //统计a字符串
+        counts[a[i] - 'a']++;
+    for (int i = 0; i < b_len; ++i) //统计b字符串
+        counts[b[i] - 'a']--;
+    for (int i = 0; i < 26; ++i)
+        if (counts[i] != 0)
+            return 0;
+    return 1;
+}
+int func6()
+{
+    int n, k;
+    char a[11];
+    scanf("%d", &n);
+    char strs[n][11];
+    for (int i = 0; i < n; ++i)
+    {
+        scanf("%s", strs[i]);
+    }
+    scanf("%s", a);
+    scanf("%d", &k);
+    int a_len = strlen(a);
+    int l = 0, r = n - 1;
+    char temp[11];
+    while (l <= r)
+    {
+        if (strlen(strs[l]) != a_len || !isBrother(a, strs[l])) //如果当前字符串不是兄弟，则将其与最后一个字符串交换，r前移
+        {
+            strcpy(temp, strs[r]);
+            strcpy(strs[r], strs[l]);
+            strcpy(strs[l], temp);
+            r--;
+        }
+        else
+            l++;
+    }
+    for (int i = 1; i <= r; ++i) //排序
+    {
+        strcpy(temp, strs[i]);
+        int j;
+        for (j = i; j > 0 && strcmp(strs[j - 1], temp) > 0; --j)
+        {
+            strcpy(strs[j], strs[j - 1]);
+        }
+        strcpy(strs[j], temp);
+    }
+    printf("%d\n", r + 1);
+    if (k <= r) //判断k是否合法
+        printf("%s", strs[k - 1]);
+    return 0;
+}
+
+/*
+输入一个字符串，返回其最长的数字子串，以及其长度。若有多个最长的数字子串，则将它们全部输出（按原字符串的相对位置）
+本题含有多组样例输入。
+*/
+int func7()
+{
+    char str[201];
+    while (scanf("%s", str) != EOF)
+    {
+        int len = strlen(str), maxsize = 0;
+        char nums[len] = {};
+        int start = 0, end = 0;
+        while (start < len && end < len)
+        {
+            if (str[start] <= '9' && str[start] >= '0')
+            {
+                end = start;
+                while (str[end] <= '9' && str[end] >= '0' && end < len)
+                    end++;
+                if (end - start > maxsize)
+                {
+                    maxsize = end - start;
+                    strncpy(nums, str + start, end - start);
+                    nums[end - start] = '\0'; //手动填0，因为strncpy不会在字符串后加'\0'，故需要手动添加
+                }
+                else if (end - start == maxsize)
+                {
+                    strncat(nums, str + start, end - start);
+                }
+                start = end;
+            }
+            else
+                start++;
+        }
+        printf("%s,", nums);
+        printf("%d\n", maxsize);
+    }
+    return 0;
+}
+
+/*
+在命令行输入如下命令：
+
+xcopy /s c:\\ d:\\e，
+
+各个参数如下：
+
+参数1：命令字xcopy
+
+参数2：字符串/s
+
+参数3：字符串c:\\
+
+参数4: 字符串d:\\e
+
+请编写一个参数解析程序，实现将命令行各个参数解析出来。
+
+
+解析规则：
+
+1.参数分隔符为空格
+2.对于用""包含起来的参数，如果中间有空格，不能解析为多个参数。比如在命令行输入xcopy /s "C:\\program files" "d:\"时，参数仍然是4个，第3个参数应该是字符串C:\\program files，而不是C:\\program，注意输出参数时，需要将""去掉，引号不存在嵌套情况。
+3.参数不定长
+
+4.输入由用例保证，不会出现不符合要求的输入
+*/
+int func8()
+{
+    char str[1001], temp[1001];
+    temp[0] = '\0';
+    fgets(str, 1001, stdin);
+    int len = strlen(str), s = 0, e, count = 0;
+    str[len - 1] = '\0';
+    len--;
+    while (s < len)
+    {
+        if (str[s] == '"')
+        {
+            s++; // s跳到指令头字母
+            e = s;
+            while (str[e] != '"' && e < len) // e跳到"处，则从s到e（不包括e）则是指令
+                e++;
+            count++;
+            strncat(temp, str + s, e - s);
+            strcat(temp, "\n"); //加上换行符，方便输出
+            s = e + 2;          //两跳，从'"'到' '再到首字母
+        }
+        else
+        {
+            e = s;
+            while (str[e] != ' ' && e < len)
+                e++;
+            count++;
+            strncat(temp, str + s, e - s);
+            strcat(temp, "\n");
+            s = e + 1; //一跳，从' '到首字母
+        }
+    }
+    printf("%d\n", count);
+    printf("%s", temp);
+    return 0;
+}
+
+/*
+给出一个字符串，该字符串仅由小写字母组成，定义这个字符串的“漂亮度”是其所有字母“漂亮度”的总和。
+每个字母都有一个“漂亮度”，范围在1到26之间。没有任何两个不同字母拥有相同的“漂亮度”。字母忽略大小写。
+
+给出多个字符串，计算每个字符串最大可能的“漂亮度”。
+*/
+void BubbleSort(int nums[], int n) //从大到小的冒泡
+{
+    int flag;
+    for (int i = 0; i < n; ++i)
+    {
+        flag = 0;
+        for (int j = n - 1; j > i; --j)
+        {
+            if (nums[j] > nums[j - 1])
+            {
+                int temp = nums[j];
+                nums[j] = nums[j - 1];
+                nums[j - 1] = temp;
+                flag = 1;
+            }
+        }
+        if (flag == 0)
+            break;
+    }
+}
+int func8()
+{
+    int N, ans;
+    scanf("%d\n", &N); // N表有多少个字符串
+    for (int i = 0; i < N; ++i)
+    {
+        ans = 0;
+        int hash[26] = {0};
+        char str[10001];
+        scanf("%s", str);
+        int len = strlen(str);
+        for (int i = 0; i < len; ++i)
+        {
+            str[i] = toupper(str[i]); //不分大小写，故全部转化为大写
+            if (str[i] <= 'Z' && str[i] >= 'A')
+                hash[str[i] - 'A']++;
+        }
+        BubbleSort(hash, 26); //把hash从大到小排序
+        for (int i = 0; i < 26; ++i)
+            ans += (26 - i) * hash[i]; //按出现次数分权值
+        printf("%d\n", ans);
+    }
+    return 0;
+}
+
+/*
+输出1到n之间与7有关的数有多少个
+*/
+int func9()
+{
+    int n, ans = 0;
+    scanf("%d", &n);
+    for (int i = 1; i <= n; ++i)
+    {
+        if (i % 7 == 0)
+            ans++;
+        else
+        {
+            int cur = i;
+            while (cur)
+            {
+                if (cur % 10 == 7)
+                {
+                    ans++;
+                    break;
+                }
+                cur /= 10;
+            }
+        }
+    }
+    printf("%d", ans);
+    return 0;
+}
+
+/*
+查找两个字符串a,b中的最长公共子串。若有多个，输出在较短串中最先出现的那个。
+注：子串的定义：将一个字符串删去前缀和后缀（也可以不删）形成的字符串。请和“子序列”的概念分开！
+*/
+int func10()
+{
+    char str1[1000], str2[1000], ans[1000];
+    int i, j, n, max;
+    while (scanf("%s %s", str1, str2) != EOF)
+    {
+        if (strlen(str1) > strlen(str2)) //选择较短子串为str1
+        {
+            char temp[1000];
+            strcpy(temp, str1);
+            strcpy(str1, str2);
+            strcpy(str2, temp);
+        }
+        max = 0;
+        for (i = 0; i < strlen(str1); i++)
+        {
+            for (j = 0; j < strlen(str2); j++)
+            {
+                n = 0;
+                while (str1[i + n] == str2[j + n] && str1[i + n] != '\0')
+                {
+                    n++;
+                }
+                if (n > max)
+                {
+                    max = n;
+                    strcpy(ans, str1 + i);
+                    ans[max] = '\0';
+                }
+            }
+        }
+        printf("%s\n", ans);
+    }
+    return 0;
+}
+
+/*
+光标在第一首歌曲上时，按Up键光标挪到最后一首歌曲；光标在最后一首歌曲时，按Down键光标挪到第一首歌曲。
+
+2. 歌曲总数大于4的时候（以一共有10首歌为例）：
+特殊翻页：屏幕显示的是第一页（即显示第1 – 4首）时，光标在第一首歌曲上，用户按Up键后，屏幕要显示最后一页（即显示第7-10首歌），
+同时光标放到最后一首歌上。同样的，屏幕显示最后一页时，光标在最后一首歌曲上，用户按Down键，屏幕要显示第一页，光标挪到第一首歌上。
+
+一般翻页：屏幕显示的不是第一页时，光标在当前屏幕显示的第一首歌曲时，用户按Up键后，屏幕从当前歌曲的上一首开始显示，光标也挪到上
+一首歌曲。光标当前屏幕的最后一首歌时的Down键处理也类似。
+*/
+int func11()
+{
+    int n;
+    char order[101];
+    scanf("%d\n", &n);
+    scanf("%s", order);
+    int up = 1, low = n > 4 ? 4 : n, cur = 1, len = strlen(order);
+    for (int i = 0; i < len; ++i)
+    {
+        if (order[i] == 'U')
+        {
+            if (cur != up)
+                cur--;
+            else
+            {
+                if (n <= 4)
+                    cur = low;
+                else if (up == 1)
+                {
+                    up = n - 3;
+                    low = n;
+                    cur = low;
+                }
+                else
+                {
+                    up--;
+                    cur = up;
+                    low--;
+                }
+            }
+        }
+        else if (order[i] == 'D')
+        {
+            if (cur != low)
+                cur++;
+            else
+            {
+                if (n <= 4)
+                    cur = up;
+                else if (low == n)
+                {
+                    up = 1;
+                    cur = up;
+                    low = 4;
+                }
+                else
+                {
+                    up++;
+                    low++;
+                    cur = low;
+                }
+            }
+        }
+    }
+    for (int i = up; i <= low; ++i)
+        printf("%d ", i);
+    printf("\n%d", cur);
+    return 0;
 }
