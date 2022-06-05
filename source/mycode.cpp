@@ -744,3 +744,332 @@ int func11()
     printf("\n%d", cur);
     return 0;
 }
+
+//求最大子数组和
+int maxSubArray(vector<int> &nums)
+{
+    int sum = 0, max_sum = INT_MIN;
+    for (const int &a : nums)
+    {
+        sum += a;
+        max_sum = max(max_sum, sum);
+        if (sum < 0) //如果当前和小于0，则抛弃前段，直接从0开始往后
+            sum = 0;
+    }
+    return max_sum;
+}
+int maxSubArrayWithDP(vector<int> &nums)
+{
+    int len = nums.size(), max_num = INT_MIN;
+    if (len == 1)
+        return nums[0];
+    int dp[len];
+    for (int i = 0; i < len; ++i)
+    {
+        if (i == 0)
+            dp[i] = nums[0];
+        else
+            dp[i] = max(nums[i], dp[i - 1] + nums[i]);
+        max_num = max(dp[i], max_num);
+    }
+    return max_num;
+}
+
+//矩阵乘法
+int func12()
+{
+    int x, y, z;
+    scanf("%d\n%d\n%d\n", &x, &y, &z);
+    int m1[x][y], m2[y][z], ans[x][z];
+    for (int i = 0; i < x; ++i)
+        for (int j = 0; j < y; ++j)
+            scanf("%d ", &m1[i][j]);
+    for (int i = 0; i < y; ++i)
+        for (int j = 0; j < z; ++j)
+            scanf("%d ", &m2[i][j]);
+    for (int i = 0; i < x; ++i)
+    {
+        for (int j = 0; j < z; ++j)
+        {
+            int cur = 0;
+            for (int k = 0; k < y; ++k)
+                cur += m1[i][k] * m2[k][j];
+            ans[i][j] = cur;
+        }
+    }
+    for (int i = 0; i < x; ++i)
+    {
+        for (int j = 0; j < z; ++j)
+            printf("%d ", ans[i][j]);
+        printf("\n");
+    }
+    return 0;
+}
+
+//计算一个浮点数的立方根，不使用库函数。保留一位小数。
+int func12()
+{
+    double num;
+    int is_neg = 0;
+    scanf("%lf", &num);
+    if (num < 0)
+    {
+        num = -num;
+        is_neg = 1;
+    }
+    double l = 0, r = num < 1 ? 1 : num, mid, temp;
+    while (l <= r)
+    {
+        mid = l + (r - l) / 2;
+        temp = mid * mid * mid;
+        double cmp = num > temp ? num - temp : temp - num;
+        if (cmp <= 0.0001)
+        {
+            if (is_neg == 0)
+                printf("%.1lf", mid);
+            else
+                printf("-%.1lf", mid);
+            break;
+        }
+        else if (num < temp)
+            r = mid;
+        else
+            l = mid;
+    }
+    return 0;
+}
+
+/*
+请计算n*m的棋盘格子（n为横向的格子数，m为竖向的格子数）从棋盘左上角出发沿着边缘线从左上角走到右下角，总共有多少种走法，要求不能走回头路，即：只能往右和往下走，不能往左和往上走。
+
+注：沿棋盘格之间的边缘线行走
+*/
+//递归写法
+int help(int n, int m)
+{
+    int res;
+    if (n == 0 || m == 0)
+        res = 1;
+    else
+        res = help(n - 1, m) + help(n, m - 1);
+    return res;
+}
+int func13()
+{
+    int n, m;
+    scanf("%d %d", &n, &m);
+    int ans = help(n, m);
+    printf("%d", ans);
+    return 0;
+}
+//非递归
+int func14(int n, int m)
+{
+    int n, m;
+    scanf("%d %d", &n, &m);
+    int dp[n + 1][m + 1];
+    for (int i = 0; i <= n; ++i)
+    {
+        for (int j = 0; j <= m; ++j)
+        {
+            if (i == 0 && j == 0)
+                dp[i][j] = 1;
+            else if (i == 0)
+                dp[i][j] = dp[i][j - 1];
+            else if (j == 0)
+                dp[i][j] = dp[i - 1][j];
+            else
+                dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+        }
+    }
+    printf("%d", dp[n][m]);
+    return 0;
+}
+
+/*
+输入一个单向链表，输出该链表中倒数第k个结点，链表的倒数第1个结点为链表的尾指针。
+正常返回倒数第k个结点指针，异常返回空指针.
+要求：
+(1)正序构建链表;
+(2)构建后要忘记链表长度。
+*/
+int func13()
+{
+    int n, k;
+    while (scanf("%d", &n) != EOF)
+    {
+        LNode *head = (LNode *)malloc(sizeof(LNode));
+        LNode *p = head, *q;
+        for (int i = 0; i < n; ++i)
+        {
+            LNode *temp = (LNode *)malloc(sizeof(LNode));
+            scanf("%d", &temp->val);
+            temp->next = NULL;
+            p->next = temp;
+            p = p->next;
+        }
+        scanf("%d", &k);
+        p = head;
+        q = head;
+        for (int i = 0; i < k; ++i)
+        {
+            if (q == NULL)
+                return 0;
+            q = q->next;
+        }
+        while (q)
+        {
+            q = q->next;
+            p = p->next;
+        }
+        printf("%d\n", p->val);
+    }
+    return 0;
+}
+
+/*
+任意一个偶数（大于2）都可以由2个素数组成，组成偶数的2个素数有很多种情况，本题目要求输出组成指定偶数的两个素数差值最小的素数对。
+*/
+int isPrime(int x)
+{
+    int size = sqrt(x);
+    for (int i = 2; i <= size; ++i)
+        if (x % i == 0)
+            return 0;
+    return 1;
+}
+int func14()
+{
+    int n, ans;
+    scanf("%d", &n);
+    for (int i = 1; i <= n / 2; ++i)
+    {
+        if (isPrime(i) && isPrime(n - i))
+            ans = i;
+    }
+    printf("%d\n%d", ans, n - ans);
+    return 0;
+}
+
+/*
+动态规划求最长回文子串，时间复杂度O(n²)，空间复杂度O(n²)
+*/
+int func15()
+{
+    char str[351];
+    scanf("%s\n", str);
+    int len = strlen(str);
+    if (len < 2)
+    {
+        printf("%d", len);
+        return 0;
+    }
+    int dp[len][len], ans = 1;
+    for (int i = 0; i < len; ++i)
+        dp[i][i] = 1;
+    for (int j = 0; j < len; ++j)
+    {
+        for (int i = 0; i <= j; ++i)
+        {
+            if (str[i] != str[j])
+                dp[i][j] = 0;
+            else
+            {
+                if ((j - i < 3) || dp[i + 1][j - 1])
+                {
+                    dp[i][j] = j - i + 1;
+                    ans = dp[i][j] > ans ? dp[i][j] : ans;
+                }
+                else
+                    dp[i][j] = 0;
+            }
+        }
+    }
+    printf("%d", ans);
+    return 0;
+}
+
+/*
+dfs走迷宫
+其中的1表示墙壁，0表示可以走的路，只能横着走或竖着走，不能斜着走，
+要求编程序找出从左上角到右下角的路线。入口点为[0,0],既第一格是可以走的路。
+*/
+void dfs1(const vector<vector<int>> &nums, vector<vector<int>> path, int x, int y, vector<vector<int>> &ans, vector<vector<bool>> visited)
+{
+    if (x >= nums.size() || y >= nums[0].size() || nums[x][y] == 1 || visited[x][y])
+        return;
+    if (nums[x][y] == 0)
+    {
+        path.push_back({x, y});
+        visited[x][y] = true;
+    }
+    if (x == nums.size() - 1 && y == nums[0].size() - 1)
+    {
+        ans = path;
+        return;
+    }
+    dfs1(nums, path, x + 1, y, ans, visited);
+    dfs1(nums, path, x, y + 1, ans, visited);
+    dfs1(nums, path, x - 1, y, ans, visited);
+    dfs1(nums, path, x, y - 1, ans, visited);
+}
+int func16()
+{
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> nums(n, vector<int>(m));
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < m; ++j)
+            cin >> nums[i][j];
+    }
+    vector<vector<int>> path, ans;
+    vector<vector<bool>> visited(n, vector<bool>(m));
+    dfs1(nums, path, 0, 0, ans, visited);
+    for (const auto &a : ans)
+        cout << "(" << a[0] << "," << a[1] << ")" << endl;
+    return 0;
+}
+
+/*
+如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。
+如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。我们使用Insert()方法读取数据流，
+使用GetMedian()方法获取当前读取数据的中位数。
+*/
+class Solution1
+{
+public:
+    priority_queue<double, vector<double>, less<double>> maxInt;
+    priority_queue<double, vector<double>, greater<double>> minInt;
+    void adjust()
+    {
+        if (maxInt.size() >= minInt.size() + 2)
+        {
+            minInt.push(maxInt.top());
+            maxInt.pop();
+        }
+        else if (minInt.size() >= maxInt.size() + 2)
+        {
+            maxInt.push(minInt.top());
+            minInt.pop();
+        }
+    }
+    void Insert(int num)
+    {
+        if (maxInt.empty() || num <= maxInt.top()) //大堆为空或者待插入数小于堆顶，插入大堆，否则插入小堆
+            maxInt.push(num);
+        else
+            minInt.push(num);
+        adjust(); //每次对大小堆进行调整，使得大小堆大小差距不超过1
+    }
+
+    double GetMedian()
+    {
+        if (maxInt.size() == minInt.size())
+            return (maxInt.top() + minInt.top()) / 2;
+        else if (maxInt.size() > minInt.size())
+            return maxInt.top();
+        else
+            return minInt.top();
+    }
+};

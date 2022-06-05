@@ -21,7 +21,7 @@ typedef struct ListNode
 {
     int val;
     ListNode *next;
-} * SqList;
+} * SqList, LNode;
 SqList Creat_List(vector<int> v1)
 {
     ListNode *L = new ListNode();
