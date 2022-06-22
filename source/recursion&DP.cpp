@@ -117,35 +117,6 @@ int func2()
 }
 
 // N皇后的解法
-class solution1
-{
-public:
-    int firstpick(int cards[], int l, int r) //先手
-    {
-        if (l == r) //没得挑，返回该点值
-            return cards[l];
-        //拿左边或者右边的牌后进入后手选方式
-        return max(cards[l] + secondpick(cards, l + 1, r), cards[r] + secondpick(cards, l, r - 1));
-    }
-    int secondpick(int cards[], int l, int r) //后手
-    {
-        if (l == r) //最后一张牌在对手手里，返回
-            return 0;
-        //这里不加边界值的原因是对手选牌，不需要加入自己的总值
-        return min(firstpick(cards, l + 1, r), firstpick(cards, l, r - 1));
-    }
-    int main()
-    {
-        int n;
-        cin >> n;
-        int cards[n];
-        for (int i = 0; i < n; ++i)
-            cin >> cards[i];
-        cout << max(firstpick(cards, 0, n - 1), secondpick(cards, 0, n - 1));
-        return 0;
-    }
-};
-
 class N_Queens
 {
 public:
@@ -220,3 +191,89 @@ public:
         return 0;
     }
 };
+
+/*
+假设有排成一行的N个位置，记为1~N，开始时机器人在M位置，机器人可以往左或者往右走，如果机器人在1位置，那么下一步机器人
+只能走到2位置，如果机器人在N位置，那么下一步机器人只能走到N-1位置。规定机器人只能走k步，最终能来到P位置的方法有多少种。
+*/
+int robot()
+{
+    int N, cur, K, des;
+    cin >> N >> cur >> K >> des;
+    unsigned long long dp[N + 1][K + 1];
+    //设置初始值
+    for (int i = 1; i <= N; ++i)
+        dp[i][0] = 0; //初始位置不在终点，则全置为0
+    dp[des][0] = 1;   //初始位置即终点，方法数为1
+    //----------
+    for (int col = 1; col <= K; ++col)
+    {
+        dp[1][col] = dp[2][col - 1];     //只能向右走
+        dp[N][col] = dp[N - 1][col - 1]; //只能向左走
+        for (int row = 2; row < N; ++row)
+            dp[row][col] = (dp[row + 1][col - 1] + dp[row - 1][col - 1]); //向左和向右方法的和
+    }
+    cout << dp[cur][K];
+    return 0;
+}
+
+/*
+给定一个整型数组arr，代表数值不同的纸牌排成一条线，玩家A和玩家B依次拿走每张纸牌，规定玩家A先拿，玩家B后拿，
+但是每个玩家每次只能拿走最左和最右的纸牌，玩家A和玩家B绝顶聪明。请返回最后的获胜者的分数。
+*/
+class cardSelectInRecursion //暴力递归
+{
+public:
+    int firstpick(int cards[], int l, int r) //先手
+    {
+        if (l == r) //没得挑，返回该点值
+            return cards[l];
+        //拿左边或者右边的牌后进入后手选方式
+        return max(cards[l] + secondpick(cards, l + 1, r), cards[r] + secondpick(cards, l, r - 1));
+    }
+    int secondpick(int cards[], int l, int r) //后手
+    {
+        if (l == r) //最后一张牌在对手手里，返回
+            return 0;
+        //这里不加边界值的原因是对手选牌，不需要加入自己的总值
+        return min(firstpick(cards, l + 1, r), firstpick(cards, l, r - 1));
+    }
+    int main()
+    {
+        int n;
+        cin >> n;
+        int cards[n];
+        for (int i = 0; i < n; ++i)
+            cin >> cards[i];
+        cout << max(firstpick(cards, 0, n - 1), secondpick(cards, 0, n - 1));
+        return 0;
+    }
+};
+
+int cardSelectInDP() //由暴力递归改成的动态规划
+{
+    int n;
+    cin >> n;
+    int cards[n];
+    for (int i = 0; i < n; ++i)
+        cin >> cards[i];
+    int fir[n][n], sec[n][n]; //先手数组和后手数组
+    for (int i = 0; i < n; ++i)
+    {
+        fir[i][i] = cards[i]; //边界条件l=r，只能拿该张牌
+        sec[i][i] = 0;        //边界条件l=r，拿不到牌
+    }
+    for (int col = 1; col < n; ++col) //沿对角线赋值，fir和sec赋值都只用到它们左边和下边的元素.
+    {
+        int l = 0, r = col;
+        while (l < n && r < n)
+        {
+            fir[l][r] = max(cards[l] + sec[l + 1][r], cards[r] + sec[l][r - 1]);
+            sec[l][r] = min(fir[l + 1][r], fir[l][r - 1]);
+            ++l;
+            ++r;
+        }
+    }
+    cout << max(fir[0][n - 1], sec[0][n - 1]);
+    return 0;
+}

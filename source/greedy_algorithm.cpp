@@ -156,3 +156,32 @@ int greedy2()
     cout << ans;
     return 0;
 }
+
+/*
+一群孩子做游戏，现在请你根据游戏得分来发糖果，要求如下：
+
+1. 每个孩子不管得分多少，起码分到一个糖果。
+2. 任意两个相邻的孩子之间，得分较多的孩子必须拿多一些糖果。(若相同则无此限制)
+
+给定一个数组 arrarr 代表得分数组，请返回最少需要多少糖果。
+
+要求: 时间复杂度为 O(n)O(n) 空间复杂度为 O(n)O(n)
+*/
+int candy(vector<int> &arr)
+{
+    int size = arr.size(), sum = 0;
+    vector<int> help(size, 1);     //初始化糖果数组，均为1
+    for (int i = 1; i < size; ++i) //从左到右遍历，如果右边得分比左边高则糖果数为左边加1
+    {
+        if (arr[i] > arr[i - 1])
+            help[i] = help[i - 1] + 1;
+    }
+    for (int i = size - 2; i >= 0; --i) //从右到左遍历，如果左边得分比右边高且糖果数不比右边多，则糖果数为右边加1
+    {
+        if (arr[i] > arr[i + 1] && help[i] <= help[i + 1])
+            help[i] = help[i + 1] + 1;
+    }
+    for (const int &a : help)
+        sum += a;
+    return sum;
+}

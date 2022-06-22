@@ -1073,3 +1073,25 @@ public:
             return minInt.top();
     }
 };
+
+/*
+给定一个长度为n的数组arr，返回arr的最长无重复元素子数组的长度，无重复指的是所有数字都不相同。
+子数组是连续的，比如[1,3,5,7,9]的子数组有[1,3]，[3,5,7]等等，但是[1,3,7]不是子数组
+*/
+int maxLength(vector<int> &arr)
+{
+    int size = arr.size(), maxlen = 0, l = 0, r = 0;
+    unordered_set<int> visited; //存放子数组元素
+    while (l < size)
+    {
+        while (visited.find(arr[r]) == visited.end() && r < size) //未重复则拓展数组
+        {
+            visited.insert(arr[r]);
+            r++;
+        }
+        //跳出循环说明出现重复或者遍历完毕，先更新最大子数组长度，再“吐出”最左边元素，继续检查是否重复
+        maxlen = max(maxlen, r - l);
+        visited.erase(arr[l++]);
+    }
+    return maxlen;
+}

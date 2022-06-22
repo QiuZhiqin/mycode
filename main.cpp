@@ -8,24 +8,32 @@
 #include <unordered_set>
 #include <vector>
 using namespace std;
-int divide(int n, int k)
+struct Interval
 {
-    if (k == 0 && n == 0)
-        return 1;
-    else if (k == 0)
-        return 0;
-    int ans = 0;
-    for (int i = 1; i <= n; ++i)
+    int start;
+    int end;
+    Interval() : start(0), end(0) {}
+    Interval(int s, int e) : start(s), end(e) {}
+};
+int maxLength(vector<int> &arr)
+{
+    int size = arr.size(), maxlen = 0, l = 0, r = 0;
+    unordered_set<int> visited;
+    while (l < size)
     {
-        ans += divide(n - i, k - 1);
+        while (visited.find(arr[r]) == visited.end() && r < size)
+        {
+            visited.insert(arr[r]);
+            r++;
+        }
+        maxlen = max(maxlen, r - l);
+        visited.erase(arr[l++]);
     }
-    return ans;
+    return maxlen;
 }
 int main()
 {
-    int n, k;
-    cin >> n >> k;
-    int ans = divide(n, k);
-    cout << ans;
+    vector<int> v = {1, 2, 3, 1, 2, 3, 2, 2};
+    int a = maxLength(v);
     return 0;
 }

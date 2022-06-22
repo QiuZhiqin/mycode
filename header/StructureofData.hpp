@@ -114,6 +114,31 @@ ListNode *insertionSortList(ListNode *head) //链表插排（不含头节点）
     }
     return new_head->next;
 }
+
+ListNode *deleteDuplicates(ListNode *head) //删除所有重复节点（全部删除不留重复项，例如{1,1,3}删完得{3}）
+{
+    if (head == NULL)
+        return NULL;
+    ListNode *res = new ListNode;
+    //在链表前加一个表头
+    res->next = head;
+    ListNode *cur = res;
+    while (cur->next != NULL && cur->next->next != NULL)
+    {
+        //遇到相邻两个节点值相同
+        if (cur->next->val == cur->next->next->val)
+        {
+            int temp = cur->next->val;
+            //将所有相同的都跳过
+            while (cur->next != NULL && cur->next->val == temp)
+                cur->next = cur->next->next;
+        }
+        else
+            cur = cur->next;
+    }
+    //返回时去掉表头
+    return res->next;
+}
 //***********************************************************************************************************************//
 //二叉树
 struct TreeNode
@@ -300,6 +325,7 @@ int lowestCommonAncestor(TreeNode *root, int o1, int o2) //最近公共祖先
 {
     return dfs(root, o1, o2)->val;
 }
+
 //***********************************************************************************************************************//
 //排序
 void insertionSort(vector<int> &v)
